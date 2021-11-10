@@ -23,8 +23,9 @@ type logger struct {
 	Writer io.Writer
 }
 
-func init() {
-	var syonce sync.Once
+var syonce sync.Once
+
+func active() {
 	syonce.Do(func() {
 		if PLNACK_LOG || os.Getenv("PLNACK_LOG") != "" && os.Getenv("PLNACK_LOG") == "yes" {
 			fmt.Printf("[plnack] logger enabled\n")
@@ -35,12 +36,14 @@ func init() {
 }
 
 func (l *logger) error(f string, args ...interface{}) {
+	active()
 	if PLNACK_LOG || os.Getenv("PLNACK_LOG") != "" && os.Getenv("PLNACK_LOG") == "yes" {
 		fmt.Fprintf(l.Writer, fmt.Sprintf("[ERROR] [plnack] %s", f), args...)
 	}
 }
 
 func (l *logger) info(f string, args ...interface{}) {
+	active()
 	if PLNACK_LOG || os.Getenv("PLNACK_LOG") != "" && os.Getenv("PLNACK_LOG") == "yes" {
 		fmt.Fprintf(l.Writer, fmt.Sprintf("[INFO] [plnack] %s", f), args...)
 	}
@@ -53,10 +56,14 @@ func newLogger(w io.Writer) *logger {
 	return l
 }
 
-func SetLoggerWriter(w io.Writer) {
+func  SetLoggerWriter(w io.Writer) {
 	mux := sync.Mutex{}
 	mux.Lock()
 	pl.Writer = w
 
 	defer mux.Unlock()
+}
+
+func EnableLog() {
+	PLNACK_LOG = true
 }

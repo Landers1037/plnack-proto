@@ -10,6 +10,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"io"
 	"net/http"
 	"os"
 	"testing"
@@ -40,6 +41,7 @@ func TestPlnackInJson(t *testing.T) {
 	if e != nil {
 		t.Error(e.Error())
 	}
+	testSetLoggerWriter()
 	t.Logf("%+v", data)
 }
 
@@ -90,4 +92,53 @@ func startGinTest() {
 	})
 
 	g.Run(":8080")
+}
+
+func testSetLoggerWriter() {
+	logFile, _ := os.Create("test.log")
+	SetLoggerWriter(io.MultiWriter(os.Stdout, logFile))
+	pl.error("test error\n")
+}
+
+// decode any struct
+type T1 struct{
+	Name string
+	Age  int
+}
+
+func TestDecodeAny(t *testing.T) {
+	var td T1
+	w, e := os.OpenFile("test.gob", os.O_CREATE|os.O_TRUNC, 0644)
+	if e != nil {
+		t.Error(e.Error())
+	}
+
+	e = EncodeData(w, T1{
+		Name: "test",
+		Age:  1,
+	})
+
+	w.Close()
+	if e != nil {
+		t.Error(e.Error())
+	}
+
+	f, e := os.OpenFile("test.gob", os.O_RDONLY, 0644)
+	if e != nil {
+		t.Error(e)
+	}
+
+	DecodeAny(&td, f)
+	f.Close()
+	defer os.Remove("test.gob")
+	t.Log(td)
+}
+
+// test any json
+func TestDecodeAnyJSON(t *testing.T) {
+	j := `{"name": "jiejie"}`
+	var td T1
+	DecodeAnyJSON(&td, []byte(j))
+
+	t.Log(td)
 }

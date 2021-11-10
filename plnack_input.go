@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"io"
+	"net/http"
 )
 
 // PlnackInData 标准的plnack输入结构体
@@ -30,6 +31,19 @@ func DecodeData(r io.Reader) (PlnackInData, error) {
 		return PlnackInData{}, e
 	}
 	pl.info("decode reader successful\n")
+	return res, nil
+}
+
+// DecodeHTTP 从常规的http reader中读取
+func DecodeHTTP(r http.Request) (PlnackInData, error) {
+	var res PlnackInData
+	d := gob.NewDecoder(r.Body)
+	e := d.Decode(&res)
+	if e != nil {
+		pl.error("failed to decode http reader %v\n", r)
+		return PlnackInData{}, e
+	}
+	pl.info("decode http reader successful\n")
 	return res, nil
 }
 
@@ -57,4 +71,16 @@ func DecodeJSONData(j []byte) (PlnackInData, error) {
 	}
 	pl.info("decode json data successful %s\n", j)
 	return res, nil
+}
+
+// DecodeAnyJSON 自定义结构体解析
+func DecodeAnyJSON(model interface{}, data []byte) error {
+	e := json.Unmarshal(data, &model)
+	return e
+}
+
+// DecodeAny 自定义数据解析
+func DecodeAny(model interface{}, r io.Reader) error {
+	de := gob.NewDecoder(r)
+	return de.Decode(model)
 }

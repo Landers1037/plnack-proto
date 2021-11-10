@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"io"
+	"net/http"
 	"time"
 )
 
@@ -22,6 +23,7 @@ type PlnackOutData struct {
 	Time      time.Time   `json:"time" validate:"required"`
 }
 
+// EncodeData 向标准IO 输出写入
 func EncodeData(w io.Writer, data interface{}) error {
 	enc := gob.NewEncoder(w)
 	e := enc.Encode(data)
@@ -33,6 +35,19 @@ func EncodeData(w io.Writer, data interface{}) error {
 	return nil
 }
 
+// EncodeHTTP 向http标准输出写入
+func EncodeHTTP(r http.ResponseWriter, data interface{}) error {
+	enc := gob.NewEncoder(r)
+	e := enc.Encode(data)
+	if e != nil {
+		pl.error("failed to encode http writer %v\n", e)
+		return e
+	}
+	pl.info("encode http writer successful %+v\n", data)
+	return nil
+}
+
+// EncodeGinData 向gin上下文写入
 func EncodeGinData(c *gin.Context, data interface{}) error {
 	c.Header("Content-Type", "application/octet-stream")
 	c.Header("App", "Plnack")
@@ -46,6 +61,7 @@ func EncodeGinData(c *gin.Context, data interface{}) error {
 	return nil
 }
 
+// EncodeJSONData 输出为JSON数据
 func EncodeJSONData(data PlnackOutData) ([]byte, error) {
 	b, err := json.Marshal(data)
 	if err != nil {
