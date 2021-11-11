@@ -1,21 +1,19 @@
-//go:build !json
-// +build !json
+//go:build json
+// +build json
 
 /*
-Project: plnack-proto plnack_gob.go
-Created: 2021/10/25 by Landers
+Project: plnack-proto plnack_gob_standard.go
+Created: 2021/11/12 by Landers
 */
 
 package plnack_proto
 
 import (
 	"encoding/gob"
-	jsoniter "github.com/json-iterator/go"
 	"os"
 )
 
 var pl *logger
-var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 // 注册全局的默认gob类型
 func init() {

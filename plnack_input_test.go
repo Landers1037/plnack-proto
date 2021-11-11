@@ -101,7 +101,7 @@ func testSetLoggerWriter() {
 }
 
 // decode any struct
-type T1 struct{
+type T1 struct {
 	Name string
 	Age  int
 }

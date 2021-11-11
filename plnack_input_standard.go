@@ -1,15 +1,16 @@
-//go:build !json
-// +build !json
+//go:build json
+// +build json
 
 /*
-Project: plnack-proto plnack_input.go
-Created: 2021/10/25 by Landers
+Project: plnack-proto plnack_input_standard.go
+Created: 2021/11/11 by Landers
 */
 
 package plnack_proto
 
 import (
 	"encoding/gob"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"

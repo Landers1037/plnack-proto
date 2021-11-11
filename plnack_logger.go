@@ -56,7 +56,7 @@ func newLogger(w io.Writer) *logger {
 	return l
 }
 
-func  SetLoggerWriter(w io.Writer) {
+func SetLoggerWriter(w io.Writer) {
 	mux := sync.Mutex{}
 	mux.Lock()
 	pl.Writer = w
