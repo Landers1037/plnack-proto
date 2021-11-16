@@ -9,11 +9,12 @@ import (
 	"bytes"
 	"encoding/gob"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"os"
 	"testing"
+
+	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -47,7 +48,26 @@ func TestPlnackInJson(t *testing.T) {
 
 // read gob from io
 func TestPlnackInReader(t *testing.T) {
-	PLNACK_LOG = true
+	EnableLog()
+	EnableVerify()
+
+	w, e := os.OpenFile("test.out", os.O_CREATE|os.O_TRUNC, 0644)
+	if e != nil {
+		t.Error(e.Error())
+	}
+
+	e = EncodeAny(w, PlnackInData{
+		Key:     "hello",
+		Version: "1.0",
+		AppName: "plnack",
+		Data:    "{}",
+	})
+	if e != nil {
+		t.Error(e.Error())
+	}
+
+	defer os.Remove("test.out")
+
 	file, e := os.Open("test.out")
 	if e != nil {
 		t.Error(e.Error())
@@ -113,7 +133,7 @@ func TestDecodeAny(t *testing.T) {
 		t.Error(e.Error())
 	}
 
-	e = EncodeData(w, T1{
+	e = EncodeAny(w, T1{
 		Name: "test",
 		Age:  1,
 	})

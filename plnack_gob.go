@@ -10,8 +10,9 @@ package plnack_proto
 
 import (
 	"encoding/gob"
-	jsoniter "github.com/json-iterator/go"
 	"os"
+
+	jsoniter "github.com/json-iterator/go"
 )
 
 var pl *logger

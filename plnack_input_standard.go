@@ -11,9 +11,10 @@ package plnack_proto
 import (
 	"encoding/gob"
 	"encoding/json"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 // PlnackInData 标准的plnack输入结构体

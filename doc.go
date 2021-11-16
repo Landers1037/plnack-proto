@@ -64,6 +64,16 @@ EncodeGinData(c *gin.Context, data interface{}) error
 
 EncodeJSONData(data PlnackOutData) ([]byte, error)
 响应为json字节流输出
+
+日志记录：
+使用EnableLog()以开启日志
+
+数据校验：
+使用EnableVerify()以开启默认的数据校验
+
+自定义数据校验
+使用VerifyAny(d interface{})得到校验指针对象
+自定义其中的校验规则并启动
 */
 
 package plnack_proto

@@ -10,9 +10,11 @@ package plnack_proto
 
 import (
 	"encoding/gob"
-	"github.com/gin-gonic/gin"
 	"io"
+	"net"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 // PlnackInData 标准的plnack输入结构体
@@ -28,6 +30,7 @@ func DecodeData(r io.Reader) (PlnackInData, error) {
 	var res PlnackInData
 	d := gob.NewDecoder(r)
 	e := d.Decode(&res)
+	_ = res.Check()
 	if e != nil {
 		pl.error("failed to decode reader %v\n", r)
 		return PlnackInData{}, e
@@ -41,6 +44,7 @@ func DecodeHTTP(r http.Request) (PlnackInData, error) {
 	var res PlnackInData
 	d := gob.NewDecoder(r.Body)
 	e := d.Decode(&res)
+	_ = res.Check()
 	if e != nil {
 		pl.error("failed to decode http reader %v\n", r)
 		return PlnackInData{}, e
@@ -54,6 +58,7 @@ func DecodeGinData(c *gin.Context) (PlnackInData, error) {
 	var res PlnackInData
 	d := gob.NewDecoder(c.Request.Body)
 	e := d.Decode(&res)
+	_ = res.Check()
 	if e != nil {
 		pl.error("failed to decode gin body %v\n", c.Request.Body)
 		return PlnackInData{}, e
@@ -62,11 +67,26 @@ func DecodeGinData(c *gin.Context) (PlnackInData, error) {
 	return res, nil
 }
 
+// DecodeSocket 从tcp句柄中读取
+func DecodeSocket(conn *net.TCPConn) (PlnackInData, error) {
+	var res PlnackInData
+	d := gob.NewDecoder(conn)
+	e := d.Decode(&res)
+	_ = res.Check()
+	if e != nil {
+		pl.error("failed to decode socket body %v\n", conn)
+		return PlnackInData{}, e
+	}
+	pl.info("decode socket context successful\n")
+	return res, nil
+}
+
 // DecodeJSONData 从非gob的json数据读取
 // 直接接受字节流
 func DecodeJSONData(j []byte) (PlnackInData, error) {
 	var res PlnackInData
 	e := json.Unmarshal(j, &res)
+	_ = res.Check()
 	if e != nil {
 		pl.error("failed to decode json bytes %v\n", j)
 		return PlnackInData{}, e
