@@ -9,6 +9,8 @@ import (
 	"encoding/gob"
 	"io"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -73,5 +75,36 @@ func DecodePlnackJson(j []byte) (PlnackData, error) {
 		return PlnackData{}, e
 	}
 	pl.info("decode json data successful %s\n", j)
+	return res, nil
+}
+
+// 对gin上下文的封装
+
+// EncodeGin 直接将数据定向输出到gin的上下文
+func EncodeGin(c *gin.Context, data PlnackData) error {
+	_ = data.Check()
+	c.Header("Content-Type", "application/octet-stream")
+	c.Header("App", "Plnack")
+	enc := gob.NewEncoder(c.Writer)
+	e := enc.Encode(data)
+	if e != nil {
+		pl.error("failed to encode gin writer %v\n", e)
+		return e
+	}
+	pl.info("encode gin writer successful %+v\n", data)
+	return nil
+}
+
+// DecodeGin 直接从gin的body中解码数据
+func DecodeGin(c *gin.Context) (PlnackData, error) {
+	var res PlnackData
+	d := gob.NewDecoder(c.Request.Body)
+	e := d.Decode(&res)
+	_ = res.Check()
+	if e != nil {
+		pl.error("failed to decode gin body %v\n", c.Request.Body)
+		return PlnackData{}, e
+	}
+	pl.info("decode gin context successful\n")
 	return res, nil
 }
